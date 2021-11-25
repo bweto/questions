@@ -1,0 +1,7 @@
+{
+  "name": "questions",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
