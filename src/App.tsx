@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import { IonApp, IonRouterOutlet, IonTabs } from "@ionic/react";
+import { IonApp, IonRouterOutlet } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
 /* Core CSS required for Ionic components to work properly */
@@ -21,17 +21,43 @@ import "@ionic/react/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 import Login from "./pages/login/Login";
+import Course from "./pages/course/Course";
+import { useEffect, useMemo, useState } from "react";
+import { TokenContext } from "./hooks/useTokenContext";
+import useStorage, { Actions, StorageVar } from "./hooks/useStorage";
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/">
-          <Login />
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  const [attribute, storageAction] = useStorage();
+  const [token, setToken] = useState<string>("");
+  const providerValue = useMemo(() => ({ token, setToken }), [token, setToken]);
+
+  useEffect(() => {
+    const existToken = () => {
+      storageAction({
+        name: StorageVar.TOKEN,
+        action: Actions.SELECT,
+      });
+      setToken(attribute);
+    };
+    existToken();
+  }, [attribute, storageAction]);
+
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <TokenContext.Provider value={providerValue}>
+          <IonRouterOutlet>
+            <Route
+              path="/"
+              render={() => (attribute ? <Course /> : <Login />)}
+            />
+            <Route path="/home" component={Course} />
+            <Route path="/login" component={Login} />
+          </IonRouterOutlet>
+        </TokenContext.Provider>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
