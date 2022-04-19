@@ -3,8 +3,10 @@ import HttpClient from './HttpClient';
 
 interface ItemResponse {
     icon: string
-    label: string,
+    label: string
     key: Key
+    id: string
+    basePath?: string
 }
 
 interface ListInforamtionResponse {
@@ -48,13 +50,15 @@ const courseToItem = (course: CourseData): ItemResponse => {
         icon: course.topic.icon,
         label: course.title,
         key: course._id,
+        id: course._id,
+        basePath: "/exam",
     };
 }
 
 const coursesToListInformation = (courses: CourseData[]): ListInforamtionResponse => {
     return { items: courses.map(course => courseToItem(course))}
 }
-    
+
 export {
     getCourse
 }

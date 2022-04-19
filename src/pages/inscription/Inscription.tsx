@@ -14,28 +14,70 @@ import {
     IonRow,
     IonCol,
     IonInput,
-    IonText
+    IonText,
+    useIonToast
 } from '@ionic/react';
 import { TokenContext } from '../../hooks/useTokenContext';
 import { useHistory } from 'react-router-dom';
+import { InputChangeEventDetail } from '@ionic/core';
+import { startInscription } from '../../service/Inscription';
+import useSpinner from '../../hooks/useSpinner';
 
+interface Props {
+    callActiveCourse: () => void
+}
 
-export const Inscription: React.FC = () => {
+export const Inscription: React.FC<Props> = ({ callActiveCourse }) => {
 
     const { token, setToken } = useContext(TokenContext);
     const history = useHistory();
     const [active, setActive] = useState<boolean>(true);
-    const [id,  setId] = useState<string | null | undefined>("");
-    const [pass, setPass] = useState<string | null | undefined>("");
+    const [id, setId] = useState<string>("");
+    const [pass, setPass] = useState<string>("");
+    const [spinner, setSpinner] = useSpinner()
+    const [present, dismiss] = useIonToast();
 
-    const handlerInscription = (e: React.SyntheticEvent) => {
+    const handlerInscription = async (e: React.SyntheticEvent) => {
         e.preventDefault();
- 
-      };
+        setSpinner(true);
+        startInscription({
+            idCourse: id,
+            code: pass,
+            token: token
+        }).then(res => {
+            if (res) {
+                setSpinner(false)
+                present({
+                    color: "success",
+                    message: "Registro completo.",
+                    duration: 1200,
+                    position: "top"
+                })
+                callActiveCourse()
+            } else {
+                setSpinner(false)
+                present("No fue posible hacer el registro.", 1200)
+            }
+        })
+    };
+
+
+    useLayoutEffect(() => {
+        id !== "" && pass !== "" ? setActive(false) : setActive(true);
+    }, [id, pass])
+
+    const handlerId = (e: CustomEvent<InputChangeEventDetail>) => {
+        setId(e.detail.value ?? "")
+    }
+
+    const handlerPass = (e: CustomEvent<InputChangeEventDetail>) => {
+        setPass(e.detail.value ?? "")
+    }
 
     return (
         <IonPage>
             <IonContent>
+                {spinner}
                 <IonCard>
                     <IonCardHeader>
                         <IonCardSubtitle>Incripción de cursos</IonCardSubtitle>
@@ -62,7 +104,7 @@ export const Inscription: React.FC = () => {
                                                 inputMode="text"
                                                 autofocus
                                                 clearInput
-                                                onIonChange={e => {setId(e.detail.value)}}
+                                                onIonChange={handlerId}
                                             />
                                         </IonItem>
                                     </IonCol>
@@ -77,15 +119,9 @@ export const Inscription: React.FC = () => {
                                                 value={pass}
                                                 inputMode="text"
                                                 clearInput
-                                                onIonChange={e => {setPass(e.detail.value)}}
+                                                onIonChange={handlerPass}
                                             />
                                         </IonItem>
-                                    </IonCol>
-                                    <IonCol size="12">
-                                        <IonText color="danger">
-                                            {//<p>{password.errorMSG}</p>
-                                            }
-                                        </IonText>
                                     </IonCol>
                                 </IonRow>
                                 <IonRow>

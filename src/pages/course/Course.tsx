@@ -37,11 +37,11 @@ const Course: React.FC = () => {
   const [isEmptyToken, setIsEmptyToken] = useState<boolean>(true)
   const [spinner, setActive] = useSpinner()
   const [present, dismiss] = useIonToast();
-  
+
   const fetchData = useCallback(() => {
     const fetch = async () => {
       setActive(true)
-      const data = await getCourse(token)
+      let data = await getCourse(token)
       setActive(false)
       if (data) {
         setCourses(data!) 
@@ -78,7 +78,7 @@ const Course: React.FC = () => {
             spinner={spinner}
             />
     }
-    return <Inscription />
+    return <Inscription callActiveCourse={()=>{setSegment(COURSE_ACTIVE)}}/>
   }
 
   return (

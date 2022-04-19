@@ -1,5 +1,5 @@
 import { IonIcon, IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonList } from "@ionic/react";
-import React, { Fragment, useEffect, useState } from "react";
+
 import { readerOutline } from "ionicons/icons";
 import { ListInforamtionResponse } from "../service/CourseClient";
 

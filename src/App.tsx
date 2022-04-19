@@ -1,4 +1,4 @@
-import { Route } from "react-router-dom";
+import { Redirect, Route } from "react-router-dom";
 import { IonApp, IonRouterOutlet } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -25,6 +25,7 @@ import Course from "./pages/course/Course";
 import { useEffect, useMemo, useState } from "react";
 import { TokenContext } from "./hooks/useTokenContext";
 import useStorage, { Actions, StorageVar } from "./hooks/useStorage";
+import Exams from "./pages/exams/Exams";
 
 const App: React.FC = () => {
   const [attribute, storageAction] = useStorage();
@@ -53,6 +54,8 @@ const App: React.FC = () => {
             />
             <Route path="/home" component={Course} />
             <Route path="/login" component={Login} />
+            <Route path="/exam/:id" component={Exams} />
+            <Redirect exact from="/" to="/home" />
           </IonRouterOutlet>
         </TokenContext.Provider>
       </IonReactRouter>

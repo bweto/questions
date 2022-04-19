@@ -18,6 +18,8 @@ const List: React.FC<ListInforamtionResponse> = (list: ListInforamtionResponse) 
                     key={item.key}
                     label={item.label}
                     icon={item.icon}
+                    id={item.id}
+                    basePath={item.basePath}
                 />
             )}
         </IonList>
