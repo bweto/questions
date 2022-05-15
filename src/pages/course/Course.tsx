@@ -1,35 +1,39 @@
 import {
   IonButton,
   IonButtons,
+  IonCol,
   IonContent,
+  IonGrid,
   IonHeader,
   IonIcon,
   IonLabel,
   IonPage,
+  IonRow,
   IonSegment,
   IonSegmentButton,
   IonTitle,
   IonToolbar,
   useIonToast,
 } from "@ionic/react";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { TokenContext } from "../../hooks/useTokenContext";
 import { exitOutline } from "ionicons/icons";
 import { useHistory } from "react-router";
 import useStorage, { Actions, StorageVar } from "../../hooks/useStorage";
 import { logout } from "../../service/AuthClient"
 import { getCourse, ListInforamtionResponse } from "../../service/CourseClient";
-import List from "../../components/list/list";
 import { NotFound } from "../../components/notFound/NotFound";
 import useSpinner from "../../hooks/useSpinner";
 import { Inscription } from "../inscription/Inscription";
+import List from "./List";
+import useToken from '../../hooks/useToken';
+
 
 const COURSE_ACTIVE = "ACTIVE";
 const COURSE_ENROLL = "ENROLL";
 
 const Course: React.FC = () => {
-  let { token, setToken } = useContext(TokenContext);
+  const [token, generate, deleteToken] = useToken();
   const history = useHistory();
   const [attribute, storageAction] = useStorage();
   const [segment, setSegment] = useState<string | undefined>(COURSE_ACTIVE);
@@ -41,10 +45,11 @@ const Course: React.FC = () => {
   const fetchData = useCallback(() => {
     const fetch = async () => {
       setActive(true)
+      generate();
       let data = await getCourse(token)
       setActive(false)
       if (data) {
-        setCourses(data!) 
+        setCourses(data!)
       }
       else { present("No hay cusros disponibles", 1000) }
     }
@@ -52,6 +57,7 @@ const Course: React.FC = () => {
   }, [token])
 
   useEffect(() => {
+    generate();
     if (token && isEmptyToken) {
       fetchData()
       setIsEmptyToken(false)
@@ -64,7 +70,7 @@ const Course: React.FC = () => {
         name: StorageVar.TOKEN,
         action: Actions.DELETE,
       })
-      setToken("");
+      deleteToken();
       history.push("/login");
     })
   };
@@ -72,13 +78,13 @@ const Course: React.FC = () => {
   const isActiveCourse = () => {
     if (segment === COURSE_ACTIVE) {
       return courses.items.length > 0 ? <List items={courses.items} refresh={fetchData} />
-        : <NotFound 
-            message="No hay cursos resgistrados"
-            refresh={fetchData}
-            spinner={spinner}
-            />
+        : <NotFound
+          message="No hay cursos resgistrados"
+          refresh={fetchData}
+          spinner={spinner}
+        />
     }
-    return <Inscription callActiveCourse={()=>{setSegment(COURSE_ACTIVE)}}/>
+    return <Inscription callActiveCourse={() => { setSegment(COURSE_ACTIVE) }} />
   }
 
   return (
@@ -93,21 +99,31 @@ const Course: React.FC = () => {
           <IonTitle>Cursos</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonSegment
-          onIonChange={(e) => setSegment(e.detail.value)}
-          value={segment}
-          defaultValue={COURSE_ACTIVE}
-          className="ion-padding"
-        >
-          <IonSegmentButton value={COURSE_ACTIVE}>
-            <IonLabel>Activos</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value={COURSE_ENROLL}>
-            <IonLabel>Inscribir</IonLabel>
-          </IonSegmentButton>
-      </IonSegment>
-      <IonContent className="ion-padding">
-        {isActiveCourse()}
+      <IonContent>
+        <IonGrid>
+          <IonRow>
+            <IonCol size="12">
+              <IonSegment
+                onIonChange={(e) => setSegment(e.detail.value)}
+                value={segment}
+                defaultValue={COURSE_ACTIVE}
+                className="ion-padding"
+              >
+                <IonSegmentButton value={COURSE_ACTIVE}>
+                  <IonLabel>Activos</IonLabel>
+                </IonSegmentButton>
+                <IonSegmentButton value={COURSE_ENROLL}>
+                  <IonLabel>Inscribir</IonLabel>
+                </IonSegmentButton>
+              </IonSegment>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol size="12">
+              {isActiveCourse()}
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

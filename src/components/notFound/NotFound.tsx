@@ -1,9 +1,10 @@
 import { IonButton, IonCol, IonGrid, IonRow, IonText } from '@ionic/react';
+import { refresh } from 'ionicons/icons';
 import "./NotFound.css"
 
 interface NotFoundData {
     message: string,
-    refresh?: () => void
+    refresh?: () => void | undefined
     spinner: JSX.Element
 }
 
@@ -18,7 +19,7 @@ export const NotFound: React.FC<NotFoundData> = (props: NotFoundData) => {
                     </IonText>
                 </IonCol>
             </IonRow>
-            <IonRow>
+            { refresh === undefined? null : <IonRow>
                 <IonCol size="12">
                     <IonButton
                         expand="block"
@@ -27,6 +28,7 @@ export const NotFound: React.FC<NotFoundData> = (props: NotFoundData) => {
                     >Consultar de nuevo</IonButton>
                 </IonCol>
             </IonRow>
+            }
         </IonGrid>
     </div>)
 };

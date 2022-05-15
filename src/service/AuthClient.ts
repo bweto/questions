@@ -41,10 +41,9 @@ const login = (req: AuthRequest) => HttpClient.post<AuthResponse>(
     );
   
 const logout = (token: string) => HttpClient.delete(
-    "authentication/v1/logout", 
+    "/authentication/v1/logout", 
     { headers: { authorization: `bearer ${token}` }}
     );
-
 
 export {
     login,

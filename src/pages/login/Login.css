@@ -4,6 +4,11 @@
   justify-content: center;
 }
 
+.size-screen {
+  height: 100%;
+  width: 100%;
+}
+
 .size-logo {
   height: 50%;
   width: 50%;

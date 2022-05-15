@@ -1,4 +1,4 @@
-import { Redirect, Route } from "react-router-dom";
+import { Route } from "react-router-dom";
 import { IonApp, IonRouterOutlet } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -26,6 +26,8 @@ import { useEffect, useMemo, useState } from "react";
 import { TokenContext } from "./hooks/useTokenContext";
 import useStorage, { Actions, StorageVar } from "./hooks/useStorage";
 import Exams from "./pages/exams/Exams";
+import Section from "./pages/section/Sections";
+import QuestionPage from "./pages/question/Question";
 
 const App: React.FC = () => {
   const [attribute, storageAction] = useStorage();
@@ -45,20 +47,30 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <IonReactRouter>
-        <TokenContext.Provider value={providerValue}>
+      <TokenContext.Provider value={providerValue}>
+        <IonReactRouter>
           <IonRouterOutlet>
-            <Route
-              path="/"
-              render={() => (attribute ? <Course /> : <Login />)}
-            />
-            <Route path="/home" component={Course} />
-            <Route path="/login" component={Login} />
-            <Route path="/exam/:id" component={Exams} />
-            <Redirect exact from="/" to="/home" />
+            <Route path="/" exact>
+            {attribute ? <Course /> : <Login />}
+            </Route>
+            <Route path="/home" exact>
+              < Course />
+            </Route>
+            <Route path="/login" exact>
+              <Login />
+            </Route>
+            <Route path="/exam/:id" exact>
+              < Exams />
+            </Route>
+            <Route path="/section/:idCourse/:idExam" exact>
+              < Section />
+            </Route>
+            <Route path="/question/:idCourse/:idExam/:idSection" exact>
+              < QuestionPage />
+            </Route>
           </IonRouterOutlet>
-        </TokenContext.Provider>
-      </IonReactRouter>
+        </IonReactRouter>
+      </TokenContext.Provider>
     </IonApp>
   );
 };

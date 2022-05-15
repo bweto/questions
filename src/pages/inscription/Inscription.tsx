@@ -1,7 +1,5 @@
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
-    IonContent,
-    IonPage,
     IonCard,
     IonCardHeader,
     IonCardSubtitle,
@@ -14,14 +12,13 @@ import {
     IonRow,
     IonCol,
     IonInput,
-    IonText,
     useIonToast
 } from '@ionic/react';
-import { TokenContext } from '../../hooks/useTokenContext';
-import { useHistory } from 'react-router-dom';
+
 import { InputChangeEventDetail } from '@ionic/core';
 import { startInscription } from '../../service/Inscription';
 import useSpinner from '../../hooks/useSpinner';
+import useToken from '../../hooks/useToken';
 
 interface Props {
     callActiveCourse: () => void
@@ -29,8 +26,7 @@ interface Props {
 
 export const Inscription: React.FC<Props> = ({ callActiveCourse }) => {
 
-    const { token, setToken } = useContext(TokenContext);
-    const history = useHistory();
+    const [token, generate, deleteToken] = useToken();
     const [active, setActive] = useState<boolean>(true);
     const [id, setId] = useState<string>("");
     const [pass, setPass] = useState<string>("");
@@ -61,6 +57,9 @@ export const Inscription: React.FC<Props> = ({ callActiveCourse }) => {
         })
     };
 
+    useEffect(()=>{
+        generate();
+    },[token])
 
     useLayoutEffect(() => {
         id !== "" && pass !== "" ? setActive(false) : setActive(true);
@@ -75,73 +74,71 @@ export const Inscription: React.FC<Props> = ({ callActiveCourse }) => {
     }
 
     return (
-        <IonPage>
-            <IonContent>
-                {spinner}
-                <IonCard>
-                    <IonCardHeader>
-                        <IonCardSubtitle>Incripción de cursos</IonCardSubtitle>
-                        <IonCardTitle>¿Cómo inscribir un curso?</IonCardTitle>
-                    </IonCardHeader>
+        <React.Fragment>
+            {spinner}
+            <IonCard>
+                <IonCardHeader>
+                    <IonCardSubtitle>Incripción de cursos</IonCardSubtitle>
+                    <IonCardTitle>¿Cómo inscribir un curso?</IonCardTitle>
+                </IonCardHeader>
 
-                    <IonCardContent>
-                        Para incribir un curso ingresa el id y contraseña proporcionados por el profesor.
-                    </IonCardContent>
-                </IonCard>
+                <IonCardContent>
+                    Para incribir un curso ingresa el id y contraseña proporcionados por el profesor.
+                </IonCardContent>
+            </IonCard>
 
-                <IonCard>
-                    <IonCardContent>
-                        <form className="ion-padding" onSubmit={handlerInscription} name="formLogin">
-                            <IonGrid>
-                                <IonRow>
-                                    <IonCol size="12">
-                                        <IonItem>
-                                            <IonLabel position="floating">ID curso</IonLabel>
-                                            <IonInput
-                                                name="curso"
-                                                type="text"
-                                                value={id}
-                                                inputMode="text"
-                                                autofocus
-                                                clearInput
-                                                onIonChange={handlerId}
-                                            />
-                                        </IonItem>
-                                    </IonCol>
-                                </IonRow>
-                                <IonRow>
-                                    <IonCol size="12">
-                                        <IonItem>
-                                            <IonLabel position="floating">Contraseña</IonLabel>
-                                            <IonInput
-                                                name="password"
-                                                type="password"
-                                                value={pass}
-                                                inputMode="text"
-                                                clearInput
-                                                onIonChange={handlerPass}
-                                            />
-                                        </IonItem>
-                                    </IonCol>
-                                </IonRow>
-                                <IonRow>
-                                    <IonCol size="12">
-                                        <IonButton
-                                            expand="full"
-                                            shape="round"
-                                            type="submit"
-                                            disabled={active}
-                                        >
-                                            Incribir curso
-                                        </IonButton>
-                                    </IonCol>
-                                </IonRow>
-                            </IonGrid>
-                        </form>
-                    </IonCardContent>
-                </IonCard>
+            <IonCard>
+                <IonCardContent>
+                    <form className="ion-padding" onSubmit={handlerInscription} name="formLogin">
+                        <IonGrid>
+                            <IonRow>
+                                <IonCol size="12">
+                                    <IonItem>
+                                        <IonLabel position="floating">ID curso</IonLabel>
+                                        <IonInput
+                                            name="curso"
+                                            type="text"
+                                            value={id}
+                                            inputMode="text"
+                                            autofocus
+                                            clearInput
+                                            onIonChange={handlerId}
+                                        />
+                                    </IonItem>
+                                </IonCol>
+                            </IonRow>
+                            <IonRow>
+                                <IonCol size="12">
+                                    <IonItem>
+                                        <IonLabel position="floating">Contraseña</IonLabel>
+                                        <IonInput
+                                            name="password"
+                                            type="password"
+                                            value={pass}
+                                            inputMode="text"
+                                            clearInput
+                                            onIonChange={handlerPass}
+                                        />
+                                    </IonItem>
+                                </IonCol>
+                            </IonRow>
+                            <IonRow>
+                                <IonCol size="12">
+                                    <IonButton
+                                        expand="full"
+                                        shape="round"
+                                        type="submit"
+                                        disabled={active}
+                                    >
+                                        Incribir curso
+                                    </IonButton>
+                                </IonCol>
+                            </IonRow>
+                        </IonGrid>
+                    </form>
+                </IonCardContent>
+            </IonCard>
+        </React.Fragment>
 
-            </IonContent>
-        </IonPage>
     );
 };

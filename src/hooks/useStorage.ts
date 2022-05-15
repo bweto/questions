@@ -11,7 +11,8 @@ export enum Actions {
 export enum StorageVar {
     TOKEN = "TOKEN",
     PERMISSIONS = "PERMISSIONS",
-    LAST_LOGIN = "LAST_LOGIN"
+    LAST_LOGIN = "LAST_LOGIN",
+    EXAMS = "EXAMS"
 }
 
 export interface StoreValue {

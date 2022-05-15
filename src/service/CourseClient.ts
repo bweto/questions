@@ -37,7 +37,6 @@ const getCourse = async (token: string) => {
         "/api/user/v1/enrolled",
         { headers: { authorization: `bearer ${token}` }}
         );
-
     if(status === 200) { return coursesToListInformation(data.data)}
     return undefined
       } catch(e) {
@@ -46,6 +45,7 @@ const getCourse = async (token: string) => {
 }
 
 const courseToItem = (course: CourseData): ItemResponse => {
+
     return {
         icon: course.topic.icon,
         label: course.title,

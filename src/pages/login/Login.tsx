@@ -6,6 +6,7 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCol,
+  IonContent,
   IonGrid,
   IonImg,
   IonInput,
@@ -148,7 +149,9 @@ const Login: React.FC = () => {
   };
 
   return (
-    <IonPage className="center">
+    <IonPage>
+      <IonContent>
+      <div className="center size-screen">
       <Spinner hidden={loading} />
       <IonCard>
         <IonCardHeader className="center">
@@ -219,6 +222,8 @@ const Login: React.FC = () => {
           </form>
         </IonCardContent>
       </IonCard>
+      </div>
+      </IonContent>
     </IonPage>
   );
 };

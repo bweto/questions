@@ -1,43 +1,44 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { IonToolbar, IonTitle, IonContent, IonPage, IonSegment, IonHeader, useIonToast, IonButtons, IonBackButton } from '@ionic/react';
-import { ListInforamtionResponse } from '../../service/CourseClient';
-import List from '../../components/list/list';
+import React, { useCallback, useEffect } from 'react';
+import { 
+    IonToolbar, 
+    IonTitle, 
+    IonContent, 
+    IonPage, 
+    IonHeader, 
+    useIonToast, 
+    IonButtons, 
+    IonBackButton 
+} from '@ionic/react';
+
 import { NotFound } from '../../components/notFound/NotFound';
-import { TokenContext } from '../../hooks/useTokenContext';
-import useSpinner from '../../hooks/useSpinner';
-import { useHistory } from 'react-router';
-import getExams from '../../service/Exams';
+import { useParams } from 'react-router';
+import ListExam from './List';
+import useCallExamsService from '../../service/Exams';
+
+type ExamParams = {
+    id: string
+}
 
 const Exams: React.FC = () => {
-    let { token, setToken } = useContext(TokenContext);
-    const [exams, setExams] = useState<ListInforamtionResponse>({ items: [] })
-    const [spinner, setActive] = useSpinner()
-    const history = useHistory();
+
     const [present, dismiss] = useIonToast();
-    const [isEmptyToken, setIsEmptyToken] = useState<boolean>(true)
+    const { id } = useParams<ExamParams>();   
+    const [inforamtion, spinner, callApi, getInforamtion] = useCallExamsService();
 
     const fetchData = useCallback(() => {
-        const fetch = async () => {
-            setActive(true)
-            const data = await getExams({token, idCourse: history.location.pathname.split("/")[2]})
-            setActive(false)
-            if (data) {
-                setExams(data!)
-            }
-            else { present("No hay secciones disponibles", 1000) }
-        }
-        fetch()
-    }, [token])
+        callApi(id).then(() =>{})
+        if (inforamtion === undefined) {
+            present("No hay secciones disponibles", 1000)          
+        }  
+    }, [inforamtion])
 
     useEffect(() => {
-        if (token && isEmptyToken) {
-            fetchData()
-            setIsEmptyToken(false)
-        }
-    }, [token, isEmptyToken])
+        getInforamtion(id);
+    }, [])
 
     const isActiveCourse = () => {
-        return exams.items.length > 0 ? <List items={exams.items} refresh={fetchData} />
+        const size = inforamtion?.exams?.length ?? 0
+        return size > 0 ? <ListExam examsResp={inforamtion!} refresh={fetchData} />
             : <NotFound
                 message="No hay examenes resgistrados"
                 refresh={fetchData}
@@ -50,7 +51,7 @@ const Exams: React.FC = () => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">
-                        <IonBackButton defaultHref="/" />
+                        <IonBackButton defaultHref="home" />
                     </IonButtons>
                     <IonTitle>Examenes</IonTitle>
                 </IonToolbar>
