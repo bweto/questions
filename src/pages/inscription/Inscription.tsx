@@ -83,7 +83,7 @@ export const Inscription: React.FC<Props> = ({ callActiveCourse }) => {
                 </IonCardHeader>
 
                 <IonCardContent>
-                    Para incribir un curso ingresa el id y contraseña proporcionados por el profesor.
+                    Para inscribir un curso ingresa el id y contraseña proporcionados por el profesor.
                 </IonCardContent>
             </IonCard>
 

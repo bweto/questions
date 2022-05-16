@@ -82,7 +82,7 @@ const ListQuestion: React.FC<Props> = (props: Props) => {
             props.idCourse
             ).then(()=>{
                 setQuestionState(updateQuestion);
-                toast("Se almaceno la respuesta respuesta", 2000);
+                toast("Se almaceno la respuesta", 2000);
             })
             .catch((e) => {
                 toast("Trata de nuevo enviar la respuesta", 2000);

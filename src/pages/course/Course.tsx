@@ -43,9 +43,9 @@ const Course: React.FC = () => {
   const [present, dismiss] = useIonToast();
 
   const fetchData = useCallback(() => {
+
     const fetch = async () => {
       setActive(true)
-      generate();
       let data = await getCourse(token)
       setActive(false)
       if (data) {
