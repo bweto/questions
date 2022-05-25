@@ -35,10 +35,8 @@ const useToken = ():[string, () => void, () => void] => {
     };
 
     const generateToken = () =>{
-
         if(token !== null      &&
            token !== undefined &&
-           token !== ""        &&
            validarJWT(token)){
             HttpClient.get<AuthResponse>(
                 "/authentication/v1/refresh",
