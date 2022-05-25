@@ -1,4 +1,4 @@
-import { useIonToast } from "@ionic/react";
+
 import { useState, useEffect } from "react";
 import useSpinner from "../hooks/useSpinner";
 import useStorageExam, { Actions } from "../hooks/useStorageExam";
@@ -20,6 +20,7 @@ interface ExamData  {
     title: string
     minimum_approve_questions: number
     total_questions: number
+    sucessfullQuestion: number 
     sections: string[]
 }
 
@@ -62,6 +63,7 @@ interface ExamInformation  {
     minimum_approve_questions: number
     stFinishExam: boolean
     sections: SectionInforamtion[]
+    calification: string
 }
 
 interface ExamsResp  {
@@ -83,12 +85,30 @@ interface QuestionRequest {
     selected_option:string,   
 }
 
+interface CalificationData {
+    data: CalificationList
+}
+
+interface CalificationList {
+    califications: Calification[]
+}
+
+interface Calification {
+    _id: string
+    successfull_answers: number
+    exam: Exam
+}
+
+interface Exam {
+    total_questions: number
+}
+
 const useCallExamsService = (): [
     ExamsResp | undefined, 
     JSX.Element, 
     (idCourse: string) => Promise<void>, 
     (idCourse: string) => void,
-    (idExam: string, idQuestion: string, idOption: string, inforamtion: ExamsResp, idCourse: string ) => Promise<void>
+    (idExam: string, idQuestion: string, idOption: string, Questions: Question[], idCourse: string, idSection: string ) => Promise<void>
 ] => {
     
     const [token, generate, deleteToken] = useToken();
@@ -124,15 +144,16 @@ const useCallExamsService = (): [
                     sectionsQuestions.push( {idSection: sectionId, sectionName: nameSection, questions: [], stFinishSection: false});
                 }
                }
+               await startExam(exam._id);
                examInforamtion.push({
                 idExam: exam._id,
                 idCourse: req.idCourse, 
                 examTitle: exam.title,
                 minimum_approve_questions: exam.minimum_approve_questions, 
                 sections: sectionsQuestions,
-                stFinishExam: false
+                stFinishExam: false,
+                calification: ""
             })
-            await startExam(exam._id);
            }
            const rsp = {exams: examInforamtion}
            setExamOperation({
@@ -154,7 +175,7 @@ const useCallExamsService = (): [
             uri,
             { headers: { authorization: `bearer ${req.token}` }})
         .then((res) => {
-            const data: ExamData[] = res.data.data!.map(exam => ({...exam, idCourse: req.idCourse}))
+            const data: ExamData[] = res.data.data!.map(exam => ({...exam, idCourse: req.idCourse, sucessfullQuestion: 0}))
             return {data: data}
         }).catch((e)=> {
             console.log("Algo salio mal al obtener el examen", e);
@@ -230,39 +251,106 @@ const useCallExamsService = (): [
         }
     }
     
-    const sendQuestion = async (idExam: string, idQuestion: string, idOption: string, inforamtion: ExamsResp, idCourse: string ) => {
-        await getResultId(idExam);
-        console.log("holi");
-
-        const uri = `/api/calification/v1/${resultIdStore}/question`;
-        try{
-            const req: QuestionRequest = {
-                question: idQuestion,
-                selected_option: idOption
-            }
-            await HttpClient.post<any>(
+    const finishExam = async (idExam: string) => {
+        getResultId(idExam).then((res) => {
+            const uri = `/api/calification/v1/${res}/finish`;
+            HttpClient.put<any>(
                 uri,
-                req,
+                {},
                 {headers: {
                     authorization: `bearer ${token}`,
                     'Content-Type': 'application/json'
                 }}
-            );
+            ).then(() =>{
+
+            }).catch((e: any) =>{
+                console.log("No se pudo almacenar la calificación", e);
+            })
+        })
+}
+
+    const sendQuestion = async (idExam: string, idQuestion: string, idOption: string, Questions: Question[], idCourse: string, idSection: string ) => {
+        
+        getResultId(idExam).then((res) => {
+            console.log(idExam)
+            console.log("holi");
+            console.log(resultIdStore)
+            const uri = `/api/calification/v1/${res}/question`;
+        
+                const req: QuestionRequest = {
+                    question: idQuestion,
+                    selected_option: idOption
+                }
+                HttpClient.post<any>(
+                    uri,
+                    req,
+                    {headers: {
+                        authorization: `bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }}
+                ).then(async () => {
+                    const copyInforamtion: ExamsResp = JSON.parse(JSON.stringify(inforamtion)) as ExamsResp;
+                    const updateCopyExams = copyInforamtion.exams
+                .map(exams => {
+                    if(exams.idExam === idExam){
+                        exams.sections.map( sec => {
+                                if(sec.idSection === idSection){
+                                    sec.questions = Questions;
+                                }
+                                return sec;
+                            }
+                        )
+                        return exams;
+                    }
+                    return exams;
+                } 
+                )
             
+            if(Questions.filter(q => !q.stSendComplete).length === 0) {
+                finishExam(idExam).then(() =>{
+                    console.log("Finish exam")
+                }).catch((e) =>{
+                    console.log("Algo salio mal")
+                })
+                await getCalification(idCourse, idExam).then((res)=> {
+                    console.log("res", res)
+                    copyInforamtion.exams.filter(exam => exam.idExam = idExam)[0].calification = res;
+                })
+                copyInforamtion.exams.filter(exam => exam.idExam = idExam)[0].stFinishExam = true
+               
+            }
+              
+            copyInforamtion.exams = updateCopyExams;
             setExamOperation({
                 idCourse: idCourse,
                 action: Actions.UPDATE,
-                examsOfCourse: inforamtion
+                examsOfCourse: copyInforamtion
                }).then(() =>{
-                   setInformation(inforamtion);
+                   setInformation(copyInforamtion);
                })
                .catch((e) =>{
                     console.log("Fallo Actualizando la inforamción de los examenes %o", e)
                });
+    
+            } ).catch((e: any) => {
+                console.log("No se pudo almacenar la calificación", e);
+            });
+        })
+      
+    }
 
-        } catch(e: any){
-            console.log("No se pudo almacenar la calificación", e);
-        }
+    const getCalification = (idCourse:string, examId: string): Promise<string> => {
+        return getResultId(examId).then((result) => {
+            return HttpClient.get<CalificationData>(
+                `/api/calification/v1/${idCourse}/results`,
+                { headers: { authorization: `bearer ${token}` }})
+                .then((res) => {
+                    const data = res.data.data.califications.filter(ca => ca._id === result)
+                    return `${data[0].successfull_answers}/${data[0].exam.total_questions}`
+                })
+        }).catch((e: any) =>{
+            return ""
+        })
     }
 
     return [inforamtion, spinner, callApi, getInforamtion, sendQuestion]

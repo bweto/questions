@@ -16,10 +16,10 @@ export interface StoreExam {
     action:Actions
 }
 
-const useStorageExam = (): [ExamsResp | undefined, (storeValue: StoreExam) => Promise<ExamsResp | undefined>, string, (storeValue: string) => Promise<void>] => {
+const useStorageExam = (): [ExamsResp | undefined, (storeValue: StoreExam) => Promise<ExamsResp | undefined>, string, (storeValue: string) => Promise<string>] => {
     
     const [examStorage, setExamStorage] = useState<ExamsResp | undefined>(undefined);  
-    const [resultIdStore, setResultIdStore] = useState<string>("undefined");
+    const [resultIdStore, setResultIdStore] = useState<string>("");
     
     const getResultId = async (idExam: string) => {
         const store = new Storage( {
@@ -29,7 +29,7 @@ const useStorageExam = (): [ExamsResp | undefined, (storeValue: StoreExam) => Pr
         const registry =  await store.get(idExam);
         const exams = registry
         setResultIdStore(exams);
-
+        return registry
     }
 
     const setExamOperation = async (storageExam: StoreExam) => {

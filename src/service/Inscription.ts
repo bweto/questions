@@ -14,5 +14,8 @@ export const startInscription = (req: Request):Promise<boolean> => {
     url: uri,
     })
     .then((res) => true)
-    .catch((e)=> false)
+    .catch((e)=> {
+        console.log("Algo salio mal en consumir el inscription", e)
+        return false
+    })
 }

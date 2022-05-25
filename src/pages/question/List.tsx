@@ -4,6 +4,7 @@ import {
     IonItem,
     IonLabel,
     IonList,
+    IonText,
     useIonModal,
     useIonToast 
     } from '@ionic/react';
@@ -17,7 +18,7 @@ interface Props {
     idCourse: string,
     idExam: string,
     information: ExamsResp,
-    onSendQuestion: (idExam: string, idQuestion: string, idOption: string, inforamtion: ExamsResp, idCourse: string ) => Promise<void>, 
+    onSendQuestion: (idExam: string, idQuestion: string, idOption: string, inforamtion: Question[], idCourse: string, idSection: string ) => Promise<void>, 
 }
 
 const ListQuestion: React.FC<Props> = (props: Props) => {
@@ -51,6 +52,7 @@ const ListQuestion: React.FC<Props> = (props: Props) => {
             .map(question => {
                 if(question._id === questionId){
                     question.options = updateOption;
+                    question.stSendComplete = true;
                 }
                 return question;
             })
@@ -78,8 +80,9 @@ const ListQuestion: React.FC<Props> = (props: Props) => {
             props.idExam,
             questionId,
             answerId,
-            copyInforamtion,
-            props.idCourse
+            updateQuestion,
+            props.idCourse,
+            props.idSection
             ).then(()=>{
                 setQuestionState(updateQuestion);
                 toast("Se almaceno la respuesta", 2000);
@@ -100,9 +103,7 @@ const ListQuestion: React.FC<Props> = (props: Props) => {
         onSendAnswer: onSendAnswer
     })
 
-
     
-
     const createItem = (item: Question) => (
         <IonItem 
             key={item._id} 

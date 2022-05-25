@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useLayoutEffect } from 'react';
 import { 
     IonToolbar, 
     IonTitle, 
@@ -28,11 +28,15 @@ const Exams: React.FC = () => {
     const fetchData = useCallback(() => {
         callApi(id).then(() =>{})
         if (inforamtion === undefined) {
-            present("No hay secciones disponibles", 1000)          
+            present("No hay Examenes disponibles", 1000)          
         }  
     }, [inforamtion])
 
-    useEffect(() => {
+    /*useEffect(() => {
+        getInforamtion(id);
+    }, [])*/
+
+    useLayoutEffect(() => {
         getInforamtion(id);
     }, [])
 

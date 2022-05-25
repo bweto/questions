@@ -38,18 +38,14 @@ const QuestionModal: React.FC<Modal> = ({questionInfo, idSection, idCourse, idEx
     const [isQuestionComplete, setQuestionComplete] = useState<boolean>(false);
     const handlerActiveButton = (event: CustomEvent<CheckboxChangeEventDetail<Option>>, opt: Option) => {
         
-        console.log("opt cf", opt)
         const update = JSON.parse(JSON.stringify(optionsState)) as Option[]; 
         const changes = update.map(optState => {
             if(optState._id === opt._id){
-                console.log("Entro en el if");
                 optState.isChecked = opt.isChecked? false : true;
             }
             return optState;
         })
-        console.log("changes", changes);
         setOptionsState([...changes])
-
         isActive? setActive(false) : setActive(true);
     }
 
@@ -111,6 +107,7 @@ const QuestionModal: React.FC<Modal> = ({questionInfo, idSection, idCourse, idEx
                                     return<IonItem key={i}>
                                         <IonLabel>{opt.text}</IonLabel>
                                         <IonCheckbox 
+                                            mode = "ios"
                                             slot='end' 
                                             value={opt.text}
                                             checked={opt.isChecked}

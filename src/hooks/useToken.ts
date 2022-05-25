@@ -1,5 +1,7 @@
 import { useContext } from "react";
+import { useHistory } from "react-router-dom";
 import HttpClient from "../service/HttpClient";
+import useStorage, { Actions, StorageVar } from "./useStorage";
 import { TokenContext } from "./useTokenContext";
 
 interface AuthResponse {
@@ -21,7 +23,9 @@ interface Jwt {
 const useToken = ():[string, () => void, () => void] => {
 
     const { token, setToken } = useContext(TokenContext);
-    
+    const [attribute, storageAction] = useStorage();
+    const history = useHistory();
+
     function validarJWT (token: string): boolean {
         const  base64Url = token.split('.')[1];
         const base64 = base64Url.replace('-', '+').replace('_', '/');
@@ -50,6 +54,11 @@ const useToken = ():[string, () => void, () => void] => {
             }).catch((e: any) => {
                 console.log("Fallo el refresh", e);
                 setToken("");
+                storageAction({
+                    name: StorageVar.TOKEN,
+                    action: Actions.DELETE,
+                  })
+                  history.push("/");
             })
         }
     }
